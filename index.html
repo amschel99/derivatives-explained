@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Linear vs Non-Linear Derivatives: Understanding Delta and Gamma from Scratch</title>
+</head>
+<body>
+
+<h1>Linear vs Non-Linear Derivatives: Understanding Delta and Gamma from Scratch</h1>
+
+<h2>A simple guide built from rise-over-run and a small dose of calculus.</h2>
+
+<p>Most explanations of options Greeks start with formulas. This one starts with a question you already know how to answer: <em>what's the slope of a line?</em></p>
+
+<p>By the end, you'll understand delta and gamma — the two quantities that every options trader watches all day — using nothing more than the rise-over-run trick you learned in school, plus one small extension.</p>
+
+<hr>
+
+<h2>What is a derivative?</h2>
+
+<p>A <strong>derivative</strong> is a contract whose value depends on something else — the "underlying." The contract itself isn't the thing; its value just rides on whatever happens to the thing. A bet on a football match isn't the match, but its value depends entirely on what happens in it.</p>
+
+<p>For this whole article, the underlying will be one fictional stock: <strong>TechCo, currently trading at $10.</strong> We'll look at two kinds of bets on TechCo and compare how they behave.</p>
+
+<ul>
+<li><strong>Bet 1 — Futures contract (linear):</strong> You agree to buy TechCo at $10. Whatever the price ends up at, you pocket the gain or eat the loss.</li>
+<li><strong>Bet 2 — Call option (non-linear):</strong> You pay $1 today for the <em>right</em> (not obligation) to buy TechCo at $12 later. If the stock stays below $12, you walk away — your $1 is gone. If it goes above $12, you make the difference minus the $1 you already paid.</li>
+</ul>
+
+<hr>
+
+<h2>Part 1: The linear bet (futures)</h2>
+
+<h3>The PnL formula</h3>
+
+<p>For a long futures contract bought at entry price F<sub>0</sub>:</p>
+
+<pre><code>PnL = S − F0</code></pre>
+
+<p>where S is the current TechCo price.</p>
+
+<ul>
+<li>If S = 13 and F0 = 10: PnL = 13 − 10 = <strong>+$3</strong> (gain)</li>
+<li>If S = 7 and F0 = 10: PnL = 7 − 10 = <strong>−$3</strong> (loss)</li>
+</ul>
+
+<p>The minus sign matters — it's the difference between making and losing money. Don't take an absolute value, you'd throw that information away.</p>
+
+<h3>Sample data</h3>
+
+<table>
+<thead>
+<tr><th>Stock price S</th><th>PnL = S − 10</th></tr>
+</thead>
+<tbody>
+<tr><td>$5</td><td>−$5</td></tr>
+<tr><td>$8</td><td>−$2</td></tr>
+<tr><td>$10</td><td>$0</td></tr>
+<tr><td>$12</td><td>+$2</td></tr>
+<tr><td>$13</td><td>+$3</td></tr>
+<tr><td>$15</td><td>+$5</td></tr>
+<tr><td>$18</td><td>+$8</td></tr>
+<tr><td>$20</td><td>+$10</td></tr>
+</tbody>
+</table>
+
+<p>If you plot this — PnL on the y-axis, stock price S on the x-axis — you get a perfectly straight line tilted upward.</p>
+
+<h3>Calculating the slope (rise over run)</h3>
+
+<p>Pick any two points on the line:</p>
+
+<pre><code>slope = (change in PnL) / (change in S)</code></pre>
+
+<p>Pick S = 12 and S = 13:</p>
+<ul>
+<li>At S = 12, PnL = $2</li>
+<li>At S = 13, PnL = $3</li>
+</ul>
+
+<pre><code>slope = (2 − 3) / (12 − 13) = −1 / −1 = 1</code></pre>
+
+<p>Or going the other direction (same answer, cleaner-looking):</p>
+
+<pre><code>slope = (3 − 2) / (13 − 12) = 1 / 1 = 1</code></pre>
+
+<p>Try any two points along the line — slope is <strong>always 1</strong>. That's what "linear" means: the slope doesn't depend on where you measure it.</p>
+
+<h3>What is delta?</h3>
+
+<blockquote>
+<p><strong>Delta = the slope of the PnL curve.</strong></p>
+</blockquote>
+
+<p>For futures, delta is <strong>always 1</strong>. In plain English: <em>"If the stock moves up by $1, my PnL moves up by exactly $1."</em></p>
+
+<h3>What is gamma?</h3>
+
+<blockquote>
+<p><strong>Gamma = the slope of the delta curve.</strong> Asks: "is delta itself changing as the stock price moves?"</p>
+</blockquote>
+
+<p>For futures, delta = 1 at every price. Plot delta against S and you get a flat horizontal line at height 1. The slope of a flat line is 0.</p>
+
+<p>So <strong>gamma = 0</strong> for futures.</p>
+
+<p>That's the mathematical reason futures are called linear. Their slope (delta) is constant, and the slope of their slope (gamma) is zero. Boring, predictable, and easy to reason about.</p>
+
+<hr>
+
+<h2>Part 2: The non-linear bet (call option)</h2>
+
+<h3>The PnL formula at expiration</h3>
+
+<p>For a long call option (strike K, premium paid P), at the moment the option expires:</p>
+
+<pre><code>PnL = max(0, S − K) − P</code></pre>
+
+<p>If S &lt; K, the right to buy at K is worthless — you only lost the premium P.<br>
+If S &gt; K, your right to buy at K is worth (S − K), so net you make (S − K) − P.</p>
+
+<p>Using K = $12 and P = $1:</p>
+
+<ul>
+<li>If S = $8: PnL = max(0, −4) − 1 = 0 − 1 = <strong>−$1</strong></li>
+<li>If S = $14: PnL = max(0, 2) − 1 = 2 − 1 = <strong>+$1</strong></li>
+</ul>
+
+<h3>Sample data (at expiration)</h3>
+
+<table>
+<thead>
+<tr><th>Stock price S</th><th>PnL</th></tr>
+</thead>
+<tbody>
+<tr><td>$5</td><td>−$1</td></tr>
+<tr><td>$8</td><td>−$1</td></tr>
+<tr><td>$10</td><td>−$1</td></tr>
+<tr><td>$12</td><td>−$1</td></tr>
+<tr><td>$13</td><td>$0</td></tr>
+<tr><td>$14</td><td>+$1</td></tr>
+<tr><td>$16</td><td>+$3</td></tr>
+<tr><td>$20</td><td>+$7</td></tr>
+</tbody>
+</table>
+
+<p>The PnL is <strong>flat at −$1</strong> for any price below $12 (the option just expires worthless and you've lost your $1 premium). Then at $12 it bends and starts rising.</p>
+
+<p>That bend is what makes it non-linear. Plot it and you get a hockey-stick shape, not a straight line.</p>
+
+<h3>Why the curve is more interesting before expiration</h3>
+
+<p>The kinked hockey-stick is the picture <em>exactly at expiration</em>. Before that — when there's still time for the stock to move — the option's value is a <strong>smooth curve</strong> that hugs the kinked payoff but rounds off the corner. The math for that smooth curve is called the Black-Scholes formula. You don't need to know the formula. Just trust that we can get a value at any stock price.</p>
+
+<p>We'll use these smooth values for the delta and gamma calculations below.</p>
+
+<h3>The slope problem</h3>
+
+<p>Here's the issue with a curve: <strong>the slope is different at every point.</strong></p>
+
+<ul>
+<li>At S = $7, the curve is almost flat → slope near 0</li>
+<li>At S = $12, the curve is bending the hardest → slope ≈ 0.5</li>
+<li>At S = $20, the curve is nearly diagonal → slope near 1</li>
+</ul>
+
+<p>So you can't just pick any two points and say "the slope is X." You'll get a different X depending on which points you pick. That's a problem we have to solve.</p>
+
+<hr>
+
+<h2>Part 3: How to find the slope at one specific point (delta)</h2>
+
+<h3>The trick — shrink the gap</h3>
+
+<p>You still need 2 points to do rise-over-run. So:</p>
+
+<ol>
+<li>Pick the point you care about (let's say S = $13).</li>
+<li>Pick a second point right next to it.</li>
+<li>Compute rise/run.</li>
+<li>Move the second point closer.</li>
+<li>Compute rise/run again.</li>
+<li>Keep moving it closer. The numbers will <strong>settle</strong> on one value.</li>
+</ol>
+
+<p>That settled value is the slope at your point.</p>
+
+<h3>Easy practice on a familiar curve: y = x² at x = 3</h3>
+
+<p>Let's forget options for a minute and try this on the simplest curve everyone knows: y = x².</p>
+
+<p>At x = 3, y = 9 (because 3 × 3 = 9). That's our anchor.</p>
+
+<p>Now pick a second point and shrink the gap toward 3:</p>
+
+<table>
+<thead>
+<tr><th>Second point (x)</th><th>y there</th><th>Rise / Run</th><th>Slope</th></tr>
+</thead>
+<tbody>
+<tr><td>4</td><td>16</td><td>(16 − 9) / (4 − 3)</td><td><strong>7</strong></td></tr>
+<tr><td>3.5</td><td>12.25</td><td>(12.25 − 9) / 0.5</td><td><strong>6.5</strong></td></tr>
+<tr><td>3.1</td><td>9.61</td><td>(9.61 − 9) / 0.1</td><td><strong>6.1</strong></td></tr>
+<tr><td>3.01</td><td>9.0601</td><td>(9.0601 − 9) / 0.01</td><td><strong>6.01</strong></td></tr>
+<tr><td>3.001</td><td>9.006001</td><td>tiny / tiny</td><td><strong>6.001</strong></td></tr>
+</tbody>
+</table>
+
+<p>Watch the right column: 7 → 6.5 → 6.1 → 6.01 → 6.001. It's clearly heading toward <strong>6</strong>.</p>
+
+<p>So the slope of the curve y = x² at x = 3 is <strong>6</strong>. We just <em>found</em> it by zooming in.</p>
+
+<h3>Apply the same trick to the option at S = $13</h3>
+
+<p>Here are TechCo call option values near S = $13 (Black-Scholes, with strike $12, half a year to expiry, 40% volatility — just trust the numbers):</p>
+
+<table>
+<thead>
+<tr><th>Stock price S</th><th>Option value</th></tr>
+</thead>
+<tbody>
+<tr><td>13.000</td><td>$1.9616</td></tr>
+<tr><td>13.500</td><td>$2.3046</td></tr>
+<tr><td>13.100</td><td>$2.0285</td></tr>
+<tr><td>13.010</td><td>$1.9683</td></tr>
+<tr><td>13.001</td><td>$1.96226</td></tr>
+</tbody>
+</table>
+
+<p>Anchor at S = 13. Rise/run, shrinking the gap each time:</p>
+
+<table>
+<thead>
+<tr><th>Pair</th><th>Rise / Run</th><th>Slope</th></tr>
+</thead>
+<tbody>
+<tr><td>13 → 13.5</td><td>(2.3046 − 1.9616) / 0.5</td><td><strong>0.686</strong></td></tr>
+<tr><td>13 → 13.1</td><td>(2.0285 − 1.9616) / 0.1</td><td><strong>0.669</strong></td></tr>
+<tr><td>13 → 13.01</td><td>(1.9683 − 1.9616) / 0.01</td><td><strong>0.67</strong></td></tr>
+<tr><td>13 → 13.001</td><td>(1.96226 − 1.9616) / 0.001</td><td><strong>0.66</strong></td></tr>
+</tbody>
+</table>
+
+<p>The slopes settle at about <strong>0.66</strong>. <strong>That's the option's delta at S = $13.</strong></p>
+
+<h3>What 0.66 means in plain English</h3>
+
+<blockquote>
+<p><em>"If TechCo goes up by $1, the option's value goes up by about 66 cents."</em></p>
+</blockquote>
+
+<p>Compare to the futures:</p>
+
+<ul>
+<li>Futures delta = 1 → stock up $1 → PnL up $1 (full move)</li>
+<li>Option delta at $13 = 0.66 → stock up $1 → option up only $0.66 (partial move)</li>
+</ul>
+
+<p>The option moves less because at $13 we're sitting on the bend of the curve, not its steep part. If we redid this exercise at S = $20, option delta would be near 1 (option behaves almost exactly like a future). If we redid it at S = $7, delta would be near 0 (option barely reacts to stock moves).</p>
+
+<p>That's the whole story of non-linear: <strong>delta isn't a single number — it's a different number at every price.</strong></p>
+
+<hr>
+
+<h2>Part 4: How to find gamma</h2>
+
+<blockquote>
+<p><strong>Gamma = the slope of the delta curve.</strong></p>
+</blockquote>
+
+<p>So we use the same rise-over-run trick again — but on <strong>delta values</strong> instead of option values.</p>
+
+<h3>Get delta at several prices near $13</h3>
+
+<p>Same Black-Scholes machine, just spitting out delta this time:</p>
+
+<table>
+<thead>
+<tr><th>Stock price S</th><th>Delta</th></tr>
+</thead>
+<tbody>
+<tr><td>13.000</td><td>0.6644</td></tr>
+<tr><td>13.500</td><td>0.7115</td></tr>
+<tr><td>13.100</td><td>0.6742</td></tr>
+<tr><td>13.010</td><td>0.6654</td></tr>
+</tbody>
+</table>
+
+<h3>Rise/run on the delta values</h3>
+
+<p>Anchor at S = 13. Pick a second price. Rise/run on the <em>delta</em> numbers, then shrink the gap:</p>
+
+<table>
+<thead>
+<tr><th>Pair</th><th>Rise / Run</th><th>Slope</th></tr>
+</thead>
+<tbody>
+<tr><td>13 → 13.5</td><td>(0.7115 − 0.6644) / 0.5</td><td><strong>0.094</strong></td></tr>
+<tr><td>13 → 13.1</td><td>(0.6742 − 0.6644) / 0.1</td><td><strong>0.098</strong></td></tr>
+<tr><td>13 → 13.01</td><td>(0.6654 − 0.6644) / 0.01</td><td><strong>0.10</strong></td></tr>
+</tbody>
+</table>
+
+<p>Slopes settle at about <strong>0.099</strong>. <strong>That's gamma at S = $13.</strong></p>
+
+<h3>What 0.099 means in plain English</h3>
+
+<blockquote>
+<p><em>"If TechCo goes up by $1, delta itself goes up by about 0.10."</em></p>
+</blockquote>
+
+<p>Watch the cascade this creates:</p>
+
+<ul>
+<li>At $13, delta = 0.66 → option moves $0.66 per $1 of stock</li>
+<li>At $14, delta ≈ 0.66 + 0.10 = <strong>0.76</strong> → option moves $0.76 per $1 of stock</li>
+<li>At $15, delta ≈ 0.76 + 0.09 ≈ <strong>0.85</strong> → option moves $0.85 per $1 of stock</li>
+</ul>
+
+<p>The option becomes <strong>more and more responsive</strong> as the stock climbs. That accelerating sensitivity <em>is</em> gamma. It's why option traders call gamma "convexity" — the curve is bending in your favor as the stock moves.</p>
+
+<hr>
+
+<h2>Part 5: Putting it all together</h2>
+
+<p>You just learned a powerful idea: the <strong>same</strong> rise-over-run-and-shrink trick gives you both delta and gamma.</p>
+
+<ol>
+<li><strong>First time</strong> — apply the trick to the <strong>option value</strong> curve → get <strong>delta</strong> (the slope of option value).</li>
+<li><strong>Second time</strong> — apply the trick to the <strong>delta</strong> curve → get <strong>gamma</strong> (the slope of delta).</li>
+</ol>
+
+<p>That's all "second derivative" means in calculus. Do the slope trick twice. The first slope is speed; the second is acceleration.</p>
+
+<h3>Quick comparison table</h3>
+
+<table>
+<thead>
+<tr><th></th><th>Linear (Futures)</th><th>Non-Linear (Call Option)</th></tr>
+</thead>
+<tbody>
+<tr><td>PnL shape</td><td>Straight line</td><td>Curved (bends at strike)</td></tr>
+<tr><td>Delta</td><td>1, always</td><td>Changes with S</td></tr>
+<tr><td>Slope of PnL</td><td>Same everywhere</td><td>Different at every point</td></tr>
+<tr><td>Gamma</td><td>0</td><td>Not zero (peaks at strike)</td></tr>
+<tr><td>Hedging</td><td>Static (set and forget)</td><td>Dynamic (re-hedge as S moves)</td></tr>
+</tbody>
+</table>
+
+<h3>The whole article in two sentences</h3>
+
+<blockquote>
+<p>For a <strong>linear</strong> bet, PnL is a straight line — its slope is the same everywhere, so delta is constant and gamma is zero.</p>
+<p>For a <strong>non-linear</strong> bet, PnL is a curve — its slope changes as the underlying moves (that's delta as a function of S), and the slope of <em>that</em> slope is gamma.</p>
+</blockquote>
+
+<p>Both are computed the same way: <strong>pick two points, rise over run, shrink the gap until the answer stops changing.</strong></p>
+
+<blockquote>
+<p>Calculus is just rise-over-run with a magnifying glass.</p>
+</blockquote>
+
+<hr>
+
+<h2>A small bonus — what comes after gamma?</h2>
+
+<p>If you apply the trick a <strong>third</strong> time, on the gamma values themselves, you get a quantity called <strong>speed</strong> — how fast gamma itself is changing. Apply it a fourth time and you get <strong>color</strong>. Almost no one uses these in practice, but the procedure is identical: rise/run, shrink the gap. The whole tower of derivatives — first, second, third, fourth — is built from the same one move.</p>
+
+<p>That's the secret. One move, applied over and over.</p>
+
+<hr>
+
+<p><em>If this clicked, the natural next steps are: how options combine into strategies (straddles, spreads, condors), what implied volatility actually is, and the Black-Scholes equation itself — which will feel intuitive now that you have the slope intuition locked in.</em></p>
+
+</body>
+</html>
